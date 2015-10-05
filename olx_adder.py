@@ -8,6 +8,7 @@ import selenium
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import os
+from time import sleep
 #from selenium.webdriver import Select
 
 class Advertisement:
@@ -30,7 +31,7 @@ class olxAutomater:
     
     def __init__(self):
         self.driver = webdriver.Firefox()      
-        self.driver.set_page_load_timeout(15)
+        self.driver.set_page_load_timeout(35)
 
     def setUP(self):
         self.logged_in = False
@@ -74,9 +75,11 @@ class olxAutomater:
         if not self.logged_in:
             self.log_to_page()
         driver = self.driver
+        driver.get('http://olx.pl')
         driver.find_element_by_id("postNewAdLink").click()
         driver.find_element_by_id("add-title").send_keys(ad.title)
         driver.find_element_by_id("targetrenderSelect1-0").click()
+        sleep(2)
         driver.find_element_by_link_text("Muzyka i Edukacja").click()
         driver.find_element_by_link_text("Korepetycje").click()
         subject_table = driver.find_element_by_id("category-130")
@@ -91,7 +94,25 @@ class olxAutomater:
         driver.find_element_by_id("add-description").send_keys(ad.description)
         driver.find_element_by_id("show-gallery-html").click()
         driver.find_element_by_id("htmlbutton_1").find_element_by_tag_name("input").send_keys(os.getcwd() + '\\' + ad.image)
-        driver.find_element_by_id("save").click()
+        #driver.find_element_by_id("save").click()
+        
+    def delete_ad(self, ad):
+        if type(ad) == str:
+            delete_title = ad
+        else:
+            delete_title = ad.title
+        if not self.logged_in:
+            self.log_to_page()
+        driver = self.driver
+        driver.get('http://olx.pl')
+        driver.find_element_by_id("topLoginLink").click()
+        all_ads = driver.find_element_by_id("adsTable").find_elements(By.TAG_NAME, 'h3')
+        for element in all_ads:
+            if element.text == delete_title:
+                go_up = element.find_element_by_xpath("../../../../../../..")
+                go_up.find_elements_by_xpath("//*[contains(text(), 'zakończ')]")[1].click()
+                sleep(2)
+                #driver.find_element_by_xpath("//*[contains(text(), 'tak')]")
         
 ad1 = Advertisement()
 ad1.set_title("Fizyka dla studentow i nie tylko")
@@ -102,13 +123,14 @@ ad1.set_description("ogloszenie1.txt")
 ad1.add_image("photo1.jpg")
 olx = olxAutomater()
 olx.setUP()
+olx.log_to_page()
 #olx.log_to_page()
-try:
-    olx.add_ad(ad1)
-except selenium.common.exceptions.TimeoutException:
-    #olx.driver.close()
-    olx.add_ad(ad1)
-except selenium.common.exceptions.NoSuchElementException:
-    #olx.driver.close()
-    olx.add_ad(ad1)
+#try:
+#    olx.add_ad(ad1)
+#except selenium.common.exceptions.TimeoutException:
+#    #olx.driver.close()
+#    olx.add_ad(ad1)
+#except selenium.common.exceptions.NoSuchElementException:
+#    #olx.driver.close()
+#    olx.add_ad(ad1)
 #print olx.check_if_on_first_page("fizyka", "krakow",olx.TITLE,55)
