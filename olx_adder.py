@@ -4,9 +4,10 @@ Spyder Editor
 
 This is a temporary script file.
 """
-import selenium
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 import os
 from time import sleep
 #from selenium.webdriver import Select
@@ -27,8 +28,17 @@ class Advertisement:
     def add_image(self, image):
         self.image = image
 
-class olxAutomater:
+class User:
+    def __init__(self, mail, password, city):
+        self.mail = mail
+        self.password = password
+        self.city = city
+        self.list_of_ads = []
     
+    def add_ad_to_list(self, ad):
+        self.list_of_ads.append(ad)
+
+class olxAutomater:  
     def __init__(self):
         self.driver = webdriver.Firefox()      
         self.driver.set_page_load_timeout(35)
@@ -150,3 +160,15 @@ olx.log_to_page()
 #    #olx.driver.close()
 #    olx.add_ad(ad1)
 #print olx.check_if_on_first_page("fizyka", "krakow",olx.TITLE,55)
+
+prox1 = 'http://newipnow.com/'
+
+def proxy_new_ip(driver, ip):
+    driver.get('http://newipnow.com/')
+    driver.find_element_by_link_text("46.17.98.140")
+    for table_row in driver.find_element_by_id("ip-section").find_elements(By.TAG_NAME,"tr"):
+        if ip in table_row.text:
+            table_row.click()
+            url_handler = driver.find_element_by_class_name("urlinput")
+            url_handler.clear()
+            return (driver, url_handler)
