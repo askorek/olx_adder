@@ -94,7 +94,7 @@ class olxAutomater:
         driver.find_element_by_id("add-description").send_keys(ad.description)
         driver.find_element_by_id("show-gallery-html").click()
         driver.find_element_by_id("htmlbutton_1").find_element_by_tag_name("input").send_keys(os.getcwd() + '\\' + ad.image)
-        #driver.find_element_by_id("save").click()
+        driver.find_element_by_id("save").click()
         
     def delete_ad(self, ad):
         if type(ad) == str:
@@ -112,8 +112,25 @@ class olxAutomater:
                 go_up = element.find_element_by_xpath("../../../../../../..")
                 go_up.find_elements_by_xpath("//*[contains(text(), 'zakończ')]")[1].click()
                 sleep(2)
-                #driver.find_element_by_xpath("//*[contains(text(), 'tak')]")
-        
+                hidden = olx.driver.find_element_by_class_name("cirlce-icon")
+                driver.execute_script("arguments[0].click()", hidden)
+                
+    def delete_ad_from_ended(self, ad):
+        if type(ad) == str:
+            delete_title = ad
+        else:
+            delete_title = ad.title
+        if not self.logged_in:
+            self.log_to_page()
+        driver = self.driver
+        driver.get('http://olx.pl/mojolx/archive/')
+        all_ads = driver.find_element_by_id("adsTable").find_elements(By.TAG_NAME, 'h3')
+        for element in all_ads:
+            if element.text == delete_title:
+                go_up = element.find_element_by_xpath("../../../../../../..")
+                go_up.find_elements_by_xpath("//*[contains(text(), 'usuń z listy moich ogłoszeń')]")[0].click()
+                sleep(2)
+            
 ad1 = Advertisement()
 ad1.set_title("Fizyka dla studentow i nie tylko")
 ad1.set_city("Krakow")
