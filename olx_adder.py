@@ -40,7 +40,6 @@ class olxAutomater:
         self.EXPECTED_MAIN_TITLE = "Og\u0142oszenia - Sprzedam, kupi\u0119 na OLX.pl".decode('unicode-escape')
         self.USERNAME = u'krk.korki'
         self.MIASTA = ["krakow", "warszawa", "poznan", "wroclaw"]
-        self.TITLE = 'korepetycje w fizyki'
         #self.driver = webdriver.Firefox()
         
     def log_to_page(self):
@@ -54,17 +53,17 @@ class olxAutomater:
         assert driver.find_element_by_id("topLoginLink").text == self.USERNAME
         self.logged_in = True
 
-    def check_if_on_first_page(self,topic, city, check_title, max_position):
+    def check_if_on_first_page(self, ad, max_position):
         driver = self.driver
-        web_adress = 'http://olx.pl/muzyka-edukacja/korepetycje/korepetycje-%s/%s/?search[dist]=10' % (topic, city)
+        web_adress = 'http://olx.pl/muzyka-edukacja/korepetycje/korepetycje-%s/%s/?search[dist]=10' % (ad.topic, ad.city)
         driver.get(web_adress)
         normal_ads_table = driver.find_element_by_id("offers_table")
         ads_titles = normal_ads_table.find_elements(By.TAG_NAME, 'strong')[::2]
         counter = 1
-        self.dupa = []
+        temp_tab = []
         for el in ads_titles:
-            self.dupa.append(el)
-            if el.text == self.TITLE:
+            temp_tab.append(el)
+            if el.text == ad.title:
                 return True
             counter += 1
             if counter > max_position:
