@@ -43,6 +43,18 @@ class olxAutomater:
         self.driver = webdriver.Firefox()      
         self.driver.set_page_load_timeout(35)
 
+    def proxy_new_ip(self, ip):
+        self.driver.get('http://newipnow.com/')
+        for table_row in self.driver.find_element_by_id("ip-section").find_elements(By.TAG_NAME,"tr"):
+            if ip in table_row.text:
+                table_row.click()
+                self.update_url_handler()
+                break
+                
+    def update_url_handler(self):
+        self.url_handler = self.driver.find_element_by_class_name("urlinput")
+        self.url_handler.clear()
+
     def setUP(self):
         self.logged_in = False
         self.login = "krk.korki@gmail.com"
@@ -52,13 +64,15 @@ class olxAutomater:
         self.MIASTA = ["krakow", "warszawa", "poznan", "wroclaw"]
         #self.driver = webdriver.Firefox()
         
-    def log_to_page(self):
+    def log_to_page(self, user):
         driver = self.driver
-        driver.get('http://olx.pl')
+        self.update_url_handler()
+        self.url_handler.send_keys('http://olx.pl/')
+        self.url_handler.send_keys(Keys.RETURN)
         assert driver.title == self.EXPECTED_MAIN_TITLE
         driver.find_element_by_id("topLoginLink").click()
-        driver.find_element_by_id("userEmail").send_keys(self.login)
-        driver.find_element_by_id("userPass").send_keys(self.password)
+        driver.find_element_by_id("userEmail").send_keys(user.mail)
+        driver.find_element_by_id("userPass").send_keys(user.password)
         driver.find_element_by_id("se_userLogin").click()
         assert driver.find_element_by_id("topLoginLink").text == self.USERNAME
         self.logged_in = True
@@ -81,10 +95,10 @@ class olxAutomater:
         return False
 
     def add_ad(self, ad):
-        if not self.logged_in:
-            self.log_to_page()
         driver = self.driver
-        driver.get('http://olx.pl')
+        self.update_url_handler()
+        self.url_handler.send_keys('http://olx.pl/')
+        self.url_handler.send_keys(Keys.RETURN)
         driver.find_element_by_id("postNewAdLink").click()
         driver.find_element_by_id("add-title").send_keys(ad.title)
         driver.find_element_by_id("targetrenderSelect1-0").click()
@@ -98,7 +112,7 @@ class olxAutomater:
                 break
         driver.find_element_by_id("param113").send_keys(ad.price)
         driver.find_element_by_id("targetid_private_business").click()
-        hidden_field = olx.driver.find_element_by_xpath("/html/body/div[1]/section/div/div/form/fieldset[1]/div[3]/div[3]/div[2]/div/dl/dd/ul/li[2]/a/span")
+        hidden_field = driver.find_element_by_xpath("/html/body/div[1]/section/div/div/form/fieldset[1]/div[3]/div[3]/div[2]/div/dl/dd/ul/li[2]/a/span")
         driver.execute_script("arguments[0].click()", hidden_field)
         driver.find_element_by_id("add-description").send_keys(ad.description)
         driver.find_element_by_id("show-gallery-html").click()
@@ -121,7 +135,7 @@ class olxAutomater:
                 go_up = element.find_element_by_xpath("../../../../../../..")
                 go_up.find_elements_by_xpath("//*[contains(text(), 'zakończ')]")[1].click()
                 sleep(2)
-                hidden = olx.driver.find_element_by_class_name("cirlce-icon")
+                hidden = driver.find_element_by_class_name("cirlce-icon")
                 driver.execute_script("arguments[0].click()", hidden)
                 
     def delete_ad_from_ended(self, ad):
@@ -139,6 +153,7 @@ class olxAutomater:
                 go_up = element.find_element_by_xpath("../../../../../../..")
                 go_up.find_elements_by_xpath("//*[contains(text(), 'usuń z listy moich ogłoszeń')]")[0].click()
                 sleep(2)
+
             
 ad1 = Advertisement()
 ad1.set_title("Fizyka dla studentow i nie tylko")
@@ -147,9 +162,8 @@ ad1.set_topic("fizyka")
 ad1.set_price(35)
 ad1.set_description("ogloszenie1.txt")
 ad1.add_image("photo1.jpg")
-olx = olxAutomater()
-olx.setUP()
-olx.log_to_page()
+
+#olx.log_to_page()
 #olx.log_to_page()
 #try:
 #    olx.add_ad(ad1)
@@ -162,13 +176,19 @@ olx.log_to_page()
 #print olx.check_if_on_first_page("fizyka", "krakow",olx.TITLE,55)
 
 prox1 = 'http://newipnow.com/'
+ip = '46.17.98.140'
+            
+fiz_waw = Advertisement()
+fiz_waw.set_title("Fizyka wszystkie poziomy")
+fiz_waw.set_city("Warszawa")
+fiz_waw.set_topic("fizyka")
+fiz_waw.set_price(35)
+fiz_waw.set_description("waw-fiz.txt")
+fiz_waw.add_image("waw.jpg")
 
-def proxy_new_ip(driver, ip):
-    driver.get('http://newipnow.com/')
-    driver.find_element_by_link_text("46.17.98.140")
-    for table_row in driver.find_element_by_id("ip-section").find_elements(By.TAG_NAME,"tr"):
-        if ip in table_row.text:
-            table_row.click()
-            url_handler = driver.find_element_by_class_name("urlinput")
-            url_handler.clear()
-            return (driver, url_handler)
+olx = olxAutomater()
+olx.setUP()
+olx.proxy_new_ip(ip)
+warszawiak = User('321korki@gmail.com','fdsa1234', 'Warszawa')
+#olx.log_to_page(warszawiak)
+#olx.add_ad(fiz_waw)

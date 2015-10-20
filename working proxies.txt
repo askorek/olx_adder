@@ -1,1 +1,4 @@
 http://newipnow.com/
+
+107.170.153.234:443 - http+https
+94.20.63.134:3128  - http+https
