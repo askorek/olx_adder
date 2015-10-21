@@ -7,7 +7,6 @@ This is a temporary script file.
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 import os
 from time import sleep
 #from selenium.webdriver import Select
@@ -34,6 +33,15 @@ class User:
         self.password = password
         self.city = city
         self.list_of_ads = []
+        self.proxy_ip = None
+        self.proxy_port = None
+
+    def add_proxy(self, ip, port):
+        self.proxy_ip = ip
+        self.proxy_port = port
+        
+    def add_user(self, user):
+        self.user = user
     
     def add_ad_to_list(self, ad):
         self.list_of_ads.append(ad)
@@ -45,12 +53,11 @@ class olxAutomater:
 
     def setUP(self):
         self.logged_in = False
-        self.login = "krk.korki@gmail.com"
-        self.password = "fdsa1234"
+        self.login = self.user.login
+        self.password = self.user.password
         self.EXPECTED_MAIN_TITLE = "Og\u0142oszenia - Sprzedam, kupi\u0119 na OLX.pl".decode('unicode-escape')
-        self.USERNAME = u'krk.korki'
-        self.MIASTA = ["krakow", "warszawa", "poznan", "wroclaw"]
-        #self.driver = webdriver.Firefox()
+        self.USERNAME = self.user.mail
+        self.CITY = self.user.city
         
     def log_to_page(self):
         driver = self.driver
@@ -160,15 +167,3 @@ olx.log_to_page()
 #    #olx.driver.close()
 #    olx.add_ad(ad1)
 #print olx.check_if_on_first_page("fizyka", "krakow",olx.TITLE,55)
-
-prox1 = 'http://newipnow.com/'
-
-def proxy_new_ip(driver, ip):
-    driver.get('http://newipnow.com/')
-    driver.find_element_by_link_text("46.17.98.140")
-    for table_row in driver.find_element_by_id("ip-section").find_elements(By.TAG_NAME,"tr"):
-        if ip in table_row.text:
-            table_row.click()
-            url_handler = driver.find_element_by_class_name("urlinput")
-            url_handler.clear()
-            return (driver, url_handler)
