@@ -47,24 +47,38 @@ class User:
         self.list_of_ads.append(ad)
 
 class olxAutomater:  
-    def __init__(self):
-        self.driver = webdriver.Firefox()      
-        self.driver.set_page_load_timeout(35)
+    def __init__(self, user = None):
+        if user != None:
+            self.add_user(user)
 
+    def add_user(self, user):
+        self.user = user
+        
     def setUP(self):
         self.logged_in = False
-        self.login = self.user.login
+        self.login = self.user.mail
         self.password = self.user.password
         self.EXPECTED_MAIN_TITLE = "Og\u0142oszenia - Sprzedam, kupi\u0119 na OLX.pl".decode('unicode-escape')
         self.USERNAME = self.user.mail
         self.CITY = self.user.city
+        
+        if self.user.proxy_ip != None:        
+            profile = webdriver.FirefoxProfile()
+            profile.set_preference("network.proxy.type", 1)
+            profile.set_preference("network.proxy.http", self.user.proxy_ip)
+            profile.set_preference("network.proxy.http_port", int(self.user.proxy_port))
+            profile.update_preferences()
+            self.driver = webdriver.Firefox(firefox_profile=profile)
+        else:
+            self.driver = webdriver.Firefox()
+        self.driver.set_page_load_timeout(55)
         
     def log_to_page(self):
         driver = self.driver
         driver.get('http://olx.pl')
         assert driver.title == self.EXPECTED_MAIN_TITLE
         driver.find_element_by_id("topLoginLink").click()
-        driver.find_element_by_id("userEmail").send_keys(self.login)
+        driver.find_element_by_id("userEmail").send_keys(self.USERNAME)
         driver.find_element_by_id("userPass").send_keys(self.password)
         driver.find_element_by_id("se_userLogin").click()
         assert driver.find_element_by_id("topLoginLink").text == self.USERNAME
@@ -105,7 +119,7 @@ class olxAutomater:
                 break
         driver.find_element_by_id("param113").send_keys(ad.price)
         driver.find_element_by_id("targetid_private_business").click()
-        hidden_field = olx.driver.find_element_by_xpath("/html/body/div[1]/section/div/div/form/fieldset[1]/div[3]/div[3]/div[2]/div/dl/dd/ul/li[2]/a/span")
+        hidden_field = self.driver.find_element_by_xpath("/html/body/div[1]/section/div/div/form/fieldset[1]/div[3]/div[3]/div[2]/div/dl/dd/ul/li[2]/a/span")
         driver.execute_script("arguments[0].click()", hidden_field)
         driver.find_element_by_id("add-description").send_keys(ad.description)
         driver.find_element_by_id("show-gallery-html").click()
@@ -128,7 +142,7 @@ class olxAutomater:
                 go_up = element.find_element_by_xpath("../../../../../../..")
                 go_up.find_elements_by_xpath("//*[contains(text(), 'zakończ')]")[1].click()
                 sleep(2)
-                hidden = olx.driver.find_element_by_class_name("cirlce-icon")
+                hidden = self.driver.find_element_by_class_name("cirlce-icon")
                 driver.execute_script("arguments[0].click()", hidden)
                 
     def delete_ad_from_ended(self, ad):
@@ -146,17 +160,47 @@ class olxAutomater:
                 go_up = element.find_element_by_xpath("../../../../../../..")
                 go_up.find_elements_by_xpath("//*[contains(text(), 'usuń z listy moich ogłoszeń')]")[0].click()
                 sleep(2)
-            
-ad1 = Advertisement()
-ad1.set_title("Fizyka dla studentow i nie tylko")
-ad1.set_city("Krakow")
-ad1.set_topic("fizyka")
-ad1.set_price(35)
-ad1.set_description("ogloszenie1.txt")
-ad1.add_image("photo1.jpg")
-olx = olxAutomater()
-olx.setUP()
-olx.log_to_page()
+ 
+# -----------------------------------------------------------------------------
+# dodajemy ogloszenia i uzytkownikow juz prawdziwych
+ 
+user_waw = User("321korki@gmail.com","fdsa1234","warszawa")
+#user_waw.add_proxy("107.170.153.234",443)
+user_waw.add_proxy('94.20.63.134',3128)
+
+ad_waw_fiz = Advertisement()
+ad_waw_fiz.set_topic("fizyka")
+ad_waw_fiz.set_title("Fizyka wszystkie poziomy")
+ad_waw_fiz.set_city("warszawa")
+ad_waw_fiz.set_price(35)
+ad_waw_fiz.set_description("waw-fiz.txt")
+ad_waw_fiz.add_image("p-waw.png")
+
+ad_waw_stat = Advertisement()
+ad_waw_stat.set_topic("inne")
+ad_waw_stat.set_title("Statystyka - korepetycje")
+ad_waw_stat.set_city("warszawa")
+ad_waw_stat.set_price(35)
+ad_waw_stat.set_description("waw-stat.txt")
+ad_waw_stat.add_image("p-waw.png")
+
+user_waw.add_ad_to_list(ad_waw_fiz)
+user_waw.add_ad_to_list(ad_waw_stat)
+
+auto_waw = olxAutomater(user_waw)
+auto_waw.add_user(user_waw)
+auto_waw.setUP()          
+auto_waw.log_to_page()
+#ad1 = Advertisement()
+#ad1.set_title("Fizyka dla studentow i nie tylko")
+#ad1.set_city("Krakow")
+#ad1.set_topic("fizyka")
+#ad1.set_price(35)
+#ad1.set_description("ogloszenie1.txt")
+#ad1.add_image("photo1.jpg")
+#olx = olxAutomater()
+#olx.setUP()
+#olx.log_to_page()
 #olx.log_to_page()
 #try:
 #    olx.add_ad(ad1)
