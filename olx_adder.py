@@ -1,15 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+author: askorek@gmail.com
+all rights reserved
 
-This is a temporary script file.
+script helps automate olx.pl advertising page
+it allows to log in, add advetrisement, delete advertisement and check position of ad
+curently it works only for "korepetycje" type of ads
+
+multiple users using different proxies can be easily configured - it allows to bypass
+some olx.pl security and for exlample allows to add advertisements in many cities
+
+Text of ads and photos are taken from files
 """
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import os
 from time import sleep
-#from selenium.webdriver import Select
 
 class Advertisement:
     def set_title(self, title):
@@ -160,54 +167,3 @@ class olxAutomater:
                 go_up = element.find_element_by_xpath("../../../../../../..")
                 go_up.find_elements_by_xpath("//*[contains(text(), 'usuń z listy moich ogłoszeń')]")[0].click()
                 sleep(2)
- 
-# -----------------------------------------------------------------------------
-# dodajemy ogloszenia i uzytkownikow juz prawdziwych
- 
-user_waw = User("321korki@gmail.com","fdsa1234","warszawa")
-#user_waw.add_proxy("107.170.153.234",443)
-user_waw.add_proxy('94.20.63.134',3128)
-
-ad_waw_fiz = Advertisement()
-ad_waw_fiz.set_topic("fizyka")
-ad_waw_fiz.set_title("Fizyka wszystkie poziomy")
-ad_waw_fiz.set_city("warszawa")
-ad_waw_fiz.set_price(35)
-ad_waw_fiz.set_description("waw-fiz.txt")
-ad_waw_fiz.add_image("p-waw.png")
-
-ad_waw_stat = Advertisement()
-ad_waw_stat.set_topic("inne")
-ad_waw_stat.set_title("Statystyka - korepetycje")
-ad_waw_stat.set_city("warszawa")
-ad_waw_stat.set_price(35)
-ad_waw_stat.set_description("waw-stat.txt")
-ad_waw_stat.add_image("p-waw.png")
-
-user_waw.add_ad_to_list(ad_waw_fiz)
-user_waw.add_ad_to_list(ad_waw_stat)
-
-auto_waw = olxAutomater(user_waw)
-auto_waw.add_user(user_waw)
-auto_waw.setUP()          
-auto_waw.log_to_page()
-#ad1 = Advertisement()
-#ad1.set_title("Fizyka dla studentow i nie tylko")
-#ad1.set_city("Krakow")
-#ad1.set_topic("fizyka")
-#ad1.set_price(35)
-#ad1.set_description("ogloszenie1.txt")
-#ad1.add_image("photo1.jpg")
-#olx = olxAutomater()
-#olx.setUP()
-#olx.log_to_page()
-#olx.log_to_page()
-#try:
-#    olx.add_ad(ad1)
-#except selenium.common.exceptions.TimeoutException:
-#    #olx.driver.close()
-#    olx.add_ad(ad1)
-#except selenium.common.exceptions.NoSuchElementException:
-#    #olx.driver.close()
-#    olx.add_ad(ad1)
-#print olx.check_if_on_first_page("fizyka", "krakow",olx.TITLE,55)
